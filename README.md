@@ -1,4 +1,3 @@
-<details open="open">
   <summary><h2 style="display: inline-block">Table of Contents</h2></summary>
   <ol>
     <li>
@@ -15,7 +14,6 @@
     <li><a href="#help">Help</a></li>
     <li><a href="#license">License</a></li>
    </ol>
-</details>
 
 ## About
 
