@@ -1,3 +1,22 @@
+<details open="open">
+  <summary><h2 style="display: inline-block">Table of Contents</h2></summary>
+  <ol>
+    <li>
+      <a href="#about">About</a>
+    </li>
+    <li>
+      <a href="#getting-started">Getting Started</a>
+      <ul>
+        <li><a href="#prerequisites">Prerequisites</a></li>
+        <li><a href="#installation">Installation</a></li>
+      </ul>
+    </li>
+    <li><a href="#usage">Usage</a></li>
+    <li><a href="#help">Help</a></li>
+    <li><a href="#license">License</a></li>
+   </ol>
+</details>
+
 ## About
 
 This is a MATLAB programm for solving numerically the highly oscillatory 1D Schrödinger equation
@@ -7,6 +26,8 @@ This is a MATLAB programm for solving numerically the highly oscillatory 1D Schr
 Here, a(x) is a real valued coefficient function bounded away from zero and epsi is the rescaled Planck constant 0 < epsi << 1.
 
 The routine automatically switches between a standard Runge-Kutta solver and a WKB-based stepping procedure.
+
+The main programm is "adaptive_WKB_marching_method.m", which, depending on the users input, might or might not call the numerical integration routine "clenshaw_curtis.m" (see also [here](#help) for help).
 
 ## Getting Started
 
@@ -27,6 +48,14 @@ Just clone the repository
 For a quick start you can just run the example file "Test_adaptive_WKB_marching_method_Airy.m" or "Test_adaptive_WKB_marching_method_PCF.m".
 
 <img src="https://github.com/JannisKoerner/adaptive-WKB-marching-method/blob/main/Airy_example.png" width="800" height="300">
+
+## Help
+
+There are documentations available for help, just type the following into your MATLAB console:
+```sh
+   doc adaptive_WKB_marching_method
+   doc clenshaw_curtis
+   ```
 
 ## License
 
