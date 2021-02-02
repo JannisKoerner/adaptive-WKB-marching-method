@@ -25,13 +25,13 @@ Here, a(x) is a real valued coefficient function bounded away from zero and epsi
 
 The routine automatically switches between a standard Runge-Kutta solver and a WKB-based stepping procedure.
 
-The main programm is "adaptive_WKB_marching_method.m", which, depending on the users input, might or might not call the numerical integration routine "clenshaw_curtis.m" (see also [here](#help) for help).
+The main program is "adaptive_WKB_marching_method.m", which, depending on the users input, might or might not call the numerical integration routine "clenshaw_curtis.m" (see also [here](#help) for help).
 
 ## Getting Started
 
 ### Prerequisites
 
-To run the programm the following requirements are needed:
+To run the program the following requirements are needed:
 * MATLAB
 
 ### Installation
