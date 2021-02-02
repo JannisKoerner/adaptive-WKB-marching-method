@@ -1,5 +1,7 @@
 function [PhiSol, xGrid, scheme_flag_vec] = adaptive_WKB_marching_method(a,da,dda,ddda,dddda,ddddda,x_start,x_end,epsi,phi_init,RTol,phase,phase_info)
 
+% [PhiSol, xGrid, scheme_flag_vec] = adaptive_WKB_marching_method(a,da,dda,ddda,dddda,ddddda,x_start,x_end,epsi,phi_init,RTol,phase,phase_info)
+% 
 % Adaptive WKB-marching method with a coupling mechanism to the
 % well known Runge-Kutta-Fehlberg 4(5) scheme.
 %
