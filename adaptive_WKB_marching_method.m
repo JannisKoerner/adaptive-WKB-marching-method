@@ -10,7 +10,7 @@ function [PhiSol, xGrid, scheme_flag_vec] = adaptive_WKB_marching_method(a,da,dd
 % the highly oscillatory regime" from Jannis Körner, Anton Arnold and
 % Kirian Döpfner. Comments may refer to certain Equations from this work.
 %
-% For this programm there are test files called
+% For this program there are test files called
 % "Test_adaptive_WKB_marching_method_Airy.m" and
 % "Test_adaptive_WKB_marching_method_PCF.m" with two simple
 % examples.
