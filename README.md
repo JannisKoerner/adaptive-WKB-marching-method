@@ -17,7 +17,7 @@
 
 ## About
 
-This is a MATLAB programm for solving numerically the highly oscillatory 1D Schrödinger equation
+This is a MATLAB tool for solving numerically the highly oscillatory 1D Schrödinger equation
 
 <img src="https://github.com/JannisKoerner/adaptive-WKB-marching-method/blob/main/schr%C3%B6dinger_equation.png" width="300" height="45">
 
