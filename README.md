@@ -1,4 +1,3 @@
-<!-- ABOUT THE PROJECT -->
 ## About
 
 This is a MATLAB programm for solving numerically the highly oscillatory 1D Schrödinger equation
@@ -9,7 +8,6 @@ Here, a(x) is a real valued coefficient function bounded away from zero and epsi
 
 The routine automatically switches between a standard Runge-Kutta solver and a WKB-based stepping procedure.
 
-<!-- GETTING STARTED -->
 ## Getting Started
 
 ### Prerequisites
@@ -24,14 +22,12 @@ Just clone the repository
    git clone https://github.com/JannisKoerner/adaptive-WKB-marching-method.git
    ```
 
-<!-- USAGE EXAMPLES -->
 ## Usage
 
-Do get a quick start you can just run the example file "Test_adaptive_WKB_marching_method_Airy.m" or "Test_adaptive_WKB_marching_method_PCF.m".
+For a quick start you can just run the example file "Test_adaptive_WKB_marching_method_Airy.m" or "Test_adaptive_WKB_marching_method_PCF.m".
 
 <img src="https://github.com/JannisKoerner/adaptive-WKB-marching-method/blob/main/Airy_example.png" width="800" height="300">
 
-<!-- LICENSE -->
 ## License
 
 Shield: [![CC BY 4.0][cc-by-shield]][cc-by]
