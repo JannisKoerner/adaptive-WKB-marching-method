@@ -49,9 +49,11 @@ For a quick start you can just run the example file "Test_adaptive_WKB_marching_
 
 ## Help
 
-There are documentations available for help, just type the following into your MATLAB console:
+There are documentations available for help, just type the following commands into your MATLAB console:
 ```sh
    doc adaptive_WKB_marching_method
+   ```
+```sh
    doc clenshaw_curtis
    ```
 
