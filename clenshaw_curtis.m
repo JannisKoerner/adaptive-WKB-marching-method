@@ -2,10 +2,10 @@ function I = clenshaw_curtis(f,a,b,N)
 %
 % I = clenshaw_curtis(f,a,b,N)
 %
-% This programm integrates numerically a function f on the intervall [a,b]
+% This program integrates numerically a function f on the intervall [a,b]
 % using the well-known Clenshaw-Curtis algorithm (cf. C. W. Clenshaw, A. R.
 % Curtis "A method for numerical integration on an automatic computer",
-% Numerische Mathemathik 2, 197-205 (1960)). Comments in this programm may
+% Numerische Mathemathik 2, 197-205 (1960)). Comments in this program may
 % refer to Equations from this article.
 %
 % A Chebyshev grid on [-1,1] with N collocation points gets created and the
@@ -25,9 +25,9 @@ function I = clenshaw_curtis(f,a,b,N)
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % 
-% Contact:  jannis.koerner@tuwien.ac.at (Jannis Körner)
+% Contact:  jannis.koerner@tuwien.ac.at (Jannis KÃ¶rner)
 %
-% Institute of Analysis and Scientific Computing, Technische Universität
+% Institute of Analysis and Scientific Computing, Technische UniversitÃ¤t
 % Wien, Wiedner Hauptstr. 8-10, 1040 Wien, Austria
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
