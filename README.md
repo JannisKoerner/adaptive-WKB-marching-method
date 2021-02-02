@@ -40,7 +40,7 @@ Just clone the repository
    ```sh
    git clone https://github.com/JannisKoerner/adaptive-WKB-marching-method.git
    ```
-
+or download it manually and make sure the folder is added to the MATLAB search path.
 ## Usage
 
 For a quick start you can just run the example file "Test_adaptive_WKB_marching_method_Airy.m" or "Test_adaptive_WKB_marching_method_PCF.m".
