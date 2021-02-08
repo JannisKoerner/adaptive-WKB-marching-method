@@ -8,7 +8,7 @@ function [PhiSol, xGrid, scheme_flag_vec] = adaptive_WKB_marching_method(a,da,dd
 % This script is directly based on the (soon) submitted article "WKB-based
 % scheme with adaptive step size control for the Schrödinger equation in
 % the highly oscillatory regime" from Jannis Körner, Anton Arnold and
-% Kirian Döpfner. A preprint is available in the archiv arXiv:2102.03107.
+% Kirian Döpfner. A preprint is available in the archive arXiv:2102.03107.
 % Comments may refer to certain Equations from this work.
 %
 % For this program there are test files called
