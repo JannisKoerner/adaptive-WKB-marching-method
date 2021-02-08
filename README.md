@@ -25,6 +25,8 @@ Here, a(x) is a real valued coefficient function bounded away from zero and epsi
 
 The routine automatically switches between a standard Runge-Kutta solver and a WKB-based stepping procedure.
 
+The whole program directly corresponds to our recently submitted article: J. Körner, A. Arnold, K. Döpfner, WKB-based scheme with adaptive step size control for the Schrödinger equation in the highly oscillatory regime. A preprint is available in the archive [arXiv:2102.03107](https://arxiv.org/abs/2102.03107).
+
 The main program is "adaptive_WKB_marching_method.m", which, depending on the users input, might or might not call the numerical integration routine "clenshaw_curtis.m" (see also [here](#help) for help).
 
 ## Getting Started
