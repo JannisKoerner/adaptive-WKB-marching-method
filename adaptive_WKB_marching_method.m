@@ -1,12 +1,12 @@
-function [PhiSol, xGrid, scheme_flag_vec] = optmzd_adaptive_WKB_marching_method(a,da,dda,ddda,dddda,ddddda,x_start,x_end,epsi,phi_init,Tol,phase,phase_info)
+function [PhiSol, xGrid, scheme_flag_vec] = adaptive_WKB_marching_method(a,da,dda,ddda,dddda,ddddda,x_start,x_end,epsi,phi_init,Tol,phase,phase_info)
 
 % Adaptive WKB-marching method with a coupling mechanism to the
 % well known Runge-Kutta-Fehlberg 4(5) scheme.
 %
 % This script is directly based on the article "WKB-based
-% scheme with adaptive step size control for the Schrödinger equation in
-% the highly oscillatory regime" from Jannis Körner, Anton Arnold and
-% Kirian Döpfner. A preprint is available in the archive arXiv:2102.03107.
+% scheme with adaptive step size control for the SchrÃ¶dinger equation in
+% the highly oscillatory regime" from Jannis KÃ¶rner, Anton Arnold and
+% Kirian DÃ¶pfner. A preprint is available in the archive arXiv:2102.03107.
 % Comments may refer to certain Equations from this work.
 %
 % For this programm there are test files called
@@ -57,7 +57,7 @@ function [PhiSol, xGrid, scheme_flag_vec] = optmzd_adaptive_WKB_marching_method(
 %   If phase = 'numerical' the file "clenshaw_curtis.m" is called by this
 %   programm in order to integrate the phase numerically with the
 %   Clenshaw-Curtis algorithm (e.g. see 
-%   [5]: A. Arnold, C. Klein, B. Ujvari, WKB-method for the 1D Schrödinger
+%   [5]: A. Arnold, C. Klein, B. Ujvari, WKB-method for the 1D SchrÃ¶dinger
 %   equation in the semi-classical limit: enhanced phase treatment,
 %   submitted, (2019). arxiv.org/abs/1808.01887
 %   [8]: C. W. Clenshaw, A. R. CurtisA method for numerical integration on
@@ -65,11 +65,11 @@ function [PhiSol, xGrid, scheme_flag_vec] = optmzd_adaptive_WKB_marching_method(
 %                   
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % 
-% Contact:  jannis.koerner@tuwien.ac.at (Jannis Körner)
+% Contact:  jannis.koerner@tuwien.ac.at (Jannis KÃ¶rner)
 %           anton.arnold@tuwien.ac.at (Anton Arnold)
-%           kirian.doepfner@gmail.com (Kirian Döpfner)
+%           kirian.doepfner@gmail.com (Kirian DÃ¶pfner)
 %
-% Institute of Analysis and Scientific Computing, Technische Universität
+% Institute of Analysis and Scientific Computing, Technische UniversitÃ¤t
 % Wien, Wiedner Hauptstr. 8-10, 1040 Wien, Austria
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -269,7 +269,7 @@ end
 function [err_est,rkf4,rkf5] = rkf45_scheme(y,t,h)
     
     % The Runge-Kutta-Fehlberg scheme can be found, e.g., in:
-    % E. Hairer, S. Nørsett, G. Wanner, Solving Ordinary Differential
+    % E. Hairer, S. NÃ¸rsett, G. Wanner, Solving Ordinary Differential
     % Equations I, Springer, Berlin, 2000
     
     k1 = h*odefun(t,y);
