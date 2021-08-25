@@ -14,8 +14,8 @@ clc; clear;
 
 % Either give the exact phase as input or compute it numerically. Just
 % comment or uncomment.
-%phase = 'exact';
-phase = 'numerical';
+phase = 'exact';
+%phase = 'numerical';
 
 % Number of collocation points for the Clenshaw-Curtis algorithm in case
 % the phase gets computed numerically.
@@ -24,7 +24,7 @@ n_int = 20; %
 % Airy example: a(x) = x
 % Paramters
 epsi = 1;           % parameter epsilon
-RTol = 10^-5;       % relative error tolerance
+Tol = 10^-5;        % master tolerance
 
 % Note that in this case there is a turning point at 0, therefore this
 % point must be excluded from the computation intervall
@@ -62,7 +62,7 @@ end
 tic 
 [PhiSol, xGrid, scheme_flag_vec] = ...
     adaptive_WKB_marching_method(a,da,dda,ddda,dddda,ddddda,x_start,...
-    x_end,epsi,phi_init,RTol,phase,phase_info);
+    x_end,epsi,phi_init,Tol,phase,phase_info);
 time = toc % print the time needed for computing the solution
 
 
