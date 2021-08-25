@@ -25,7 +25,7 @@ n_int = 20; %
 % Paramters
 epsi = 2^-6;        % small parameter epsilon; small epsi may cause the
                     % evaluation with PCFU.m to take much time
-RTol = 10^-5;       % relative error tolerance
+Tol = 10^-6;       % relative error tolerance
 K1 = -1/2;          % First coefficient in a
 K2 = 1;             % Second coefficient in a
 
@@ -79,7 +79,7 @@ end
 tic 
 [PhiSol, xGrid, scheme_flag_vec] = ...
     adaptive_WKB_marching_method(a,da,dda,ddda,dddda,ddddda,x_start,...
-    x_end,epsi,phi_init,RTol,phase,phase_info);
+    x_end,epsi,phi_init,Tol,phase,phase_info);
 time = toc % print the time needed for computing the solution
 
 
