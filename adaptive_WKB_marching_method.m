@@ -1,17 +1,15 @@
-function [PhiSol, xGrid, scheme_flag_vec] = adaptive_WKB_marching_method(a,da,dda,ddda,dddda,ddddda,x_start,x_end,epsi,phi_init,RTol,phase,phase_info)
+function [PhiSol, xGrid, scheme_flag_vec] = optmzd_adaptive_WKB_marching_method(a,da,dda,ddda,dddda,ddddda,x_start,x_end,epsi,phi_init,Tol,phase,phase_info)
 
-% [PhiSol, xGrid, scheme_flag_vec] = adaptive_WKB_marching_method(a,da,dda,ddda,dddda,ddddda,x_start,x_end,epsi,phi_init,RTol,phase,phase_info)
-% 
 % Adaptive WKB-marching method with a coupling mechanism to the
 % well known Runge-Kutta-Fehlberg 4(5) scheme.
 %
-% This script is directly based on the (soon) submitted article "WKB-based
-% scheme with adaptive step size control for the SchrÃ¶dinger equation in
-% the highly oscillatory regime" from Jannis KÃ¶rner, Anton Arnold and
-% Kirian DÃ¶pfner. A preprint is available in the archive arXiv:2102.03107.
+% This script is directly based on the article "WKB-based
+% scheme with adaptive step size control for the Schrödinger equation in
+% the highly oscillatory regime" from Jannis Körner, Anton Arnold and
+% Kirian Döpfner. A preprint is available in the archive arXiv:2102.03107.
 % Comments may refer to certain Equations from this work.
 %
-% For this program there are test files called
+% For this programm there are test files called
 % "Test_adaptive_WKB_marching_method_Airy.m" and
 % "Test_adaptive_WKB_marching_method_PCF.m" with two simple
 % examples.
@@ -58,18 +56,20 @@ function [PhiSol, xGrid, scheme_flag_vec] = adaptive_WKB_marching_method(a,da,dd
 % Note:
 %   If phase = 'numerical' the file "clenshaw_curtis.m" is called by this
 %   programm in order to integrate the phase numerically with the
-%   Clenshaw-Curtis algorithm (e.g. see [7]: A. Arnold, C. Klein,
-%   B. Ujvari, WKB-method for the 1D SchrÃ¶dinger equation in the
-%   semi-classical limit: enhanced phase treatment, submitted, (2019).
-%   arxiv.org/abs/1808.01887)
+%   Clenshaw-Curtis algorithm (e.g. see 
+%   [5]: A. Arnold, C. Klein, B. Ujvari, WKB-method for the 1D Schrödinger
+%   equation in the semi-classical limit: enhanced phase treatment,
+%   submitted, (2019). arxiv.org/abs/1808.01887
+%   [8]: C. W. Clenshaw, A. R. CurtisA method for numerical integration on
+%   an automatic computer, Numerische Mathemathik 2, 197-205 (1960))
 %                   
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % 
-% Contact:  jannis.koerner@tuwien.ac.at (Jannis KÃ¶rner)
+% Contact:  jannis.koerner@tuwien.ac.at (Jannis Körner)
 %           anton.arnold@tuwien.ac.at (Anton Arnold)
-%           kirian.doepfner@gmail.com (Kirian DÃ¶pfner)
+%           kirian.doepfner@gmail.com (Kirian Döpfner)
 %
-% Institute of Analysis and Scientific Computing, Technische UniversitÃ¤t
+% Institute of Analysis and Scientific Computing, Technische Universität
 % Wien, Wiedner Hauptstr. 8-10, 1040 Wien, Austria
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -118,7 +118,15 @@ scheme_flag_vec = 0; % storing information about which method was chosen
 reduce_flag = 0; % flag if step was unsuccesful and the step size decreases
 
 % Initial step size
-h = .5; %
+h = 0.5;
+
+% Tolerances for local error control
+eta = 10^-2;
+ATol = Tol*eta;
+RTol = Tol;
+
+% safety parameter
+rho = 0.9; 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -172,45 +180,57 @@ while 1                                                                   %
                 phi_eps_vec = [phi_eps_vec_1, phi_eps_vec_2];
         end
         
+        % call the numerical schemes
         [est_wkb,~,wkb2] = wkb_AdSt(PhiSol(:,end),xGrid(end),h);
         [est_rkf,~,rkf5] = rkf45_scheme(PhiSol(:,end),xGrid(end),h);
                 
-        if(xGrid(end) == x_start)
-            Phi_switch = rkf5; 
-            scheme_flag = 0; % for rkf45 used
-            theta_rkf = max(gf_min, min(gf_max,(RTol/est_rkf)^(1/(k_rkf+1))));
-            h_next = theta_rkf*h;
-        else
+          
+        % avoid dividing by zero
+        if(est_wkb == 0)
+            est_wkb = 10^(-16);
+        end
+        if(est_rkf == 0)
+            est_rkf = 10^(-16);
+        end
             
-            % avoid dividing by zero
-            if(est_wkb == 0)
-                est_wkb = 10^(-16);
-            end
-            if(est_rkf == 0)
-                est_rkf = 10^(-16);
-            end
+        % Compute the theta_n for both schemes via Eq. (3.2)
+        theta_wkb = max(gf_min, min(gf_max,rho*((ATol + RTol*norm(wkb2,inf))/est_wkb)^(1/(k_wkb))));
+        theta_rkf = max(gf_min, min(gf_max,rho*((ATol + RTol*norm(rkf5,inf))/est_rkf)^(1/(k_rkf))));
             
-          % Aim for the method with the larger h-update via Eq. (3.2)
-            theta_wkb = max(gf_min, min(gf_max,(RTol/est_wkb)^(1/(k_wkb+1))));
-            theta_rkf = max(gf_min, min(gf_max,(RTol/est_rkf)^(1/(k_rkf+1))));
-            
+        if((est_wkb < ATol + RTol*norm(wkb2,inf) && est_rkf < ATol + RTol*norm(rkf5,inf)) ... 
+                || (est_wkb >= ATol + RTol*norm(wkb2,inf) && est_rkf >= ATol + RTol*norm(rkf5,inf)))
             if(theta_wkb > theta_rkf)
                 Phi_switch = wkb2;
+                est_switch = est_wkb;
                 scheme_flag = 1; % flag 1 for wkb used
                 h_next = theta_wkb*h;
             else
                 Phi_switch = rkf5;
+                est_switch = est_rkf;
                 scheme_flag = 0; % flag 0 for rkf45 used
                 h_next = theta_rkf*h;
             end
         end
+        if((est_wkb < ATol + RTol*norm(wkb2,inf) && est_rkf >= ATol + RTol*norm(rkf5,inf)))
+                Phi_switch = wkb2;
+                est_switch = est_wkb;
+                scheme_flag = 1; % flag 1 for wkb used
+                h_next = theta_wkb*h;
+        end
+        if((est_wkb >= ATol + RTol*norm(wkb2,inf) && est_rkf < ATol + RTol*norm(rkf5,inf)))
+                Phi_switch = rkf5;
+                est_switch = est_rkf;
+                scheme_flag = 0; % flag 0 for rkf45 used
+                h_next = theta_rkf*h;
+        end
+        
 
         % Check, if tolerance is satisfied
-        if(h_next >= h)
+        if(est_switch < ATol + RTol*norm(Phi_switch,inf))
             reduce_flag = 0; % no step size reduction will be performed
             break;
         else
-        
+
         % Important for numerical phase computation in the next step    
         reduce_flag = 1; % flag for unsuccesful step.
         h_old = h; % store the h-value, which was to large.
@@ -249,7 +269,7 @@ end
 function [err_est,rkf4,rkf5] = rkf45_scheme(y,t,h)
     
     % The Runge-Kutta-Fehlberg scheme can be found, e.g., in:
-    % E. Hairer, S. NÃ¸rsett, G. Wanner, Solving Ordinary Differential
+    % E. Hairer, S. Nørsett, G. Wanner, Solving Ordinary Differential
     % Equations I, Springer, Berlin, 2000
     
     k1 = h*odefun(t,y);
@@ -269,7 +289,7 @@ function [err_est,rkf4,rkf5] = rkf45_scheme(y,t,h)
         -(9/50)*k5+(2/55)*k6;
     
     % Compute the error estimator
-    err_est = norm(rkf5-rkf4,Inf)/norm(rkf5,Inf);
+    err_est = norm(rkf5-rkf4,Inf);
     
 end
      
@@ -280,82 +300,10 @@ end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-%%%%%%%%%%%%%%%%%%%%% WKB%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% error estimator (plus wkb2 solution of that step)
+%%%%%%%%%%%%%%%%%%%%% WKB %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% error estimator (plus first and second order wkb solution of that step)
 function [err_est,wkb1,wkb2] = wkb_AdSt(phi,x,h)
-    
-    % 1st-order solution
-    wkb1 = wkb_order1(phi,x,h);
-    
-    % 2nd-order solution
-    wkb2 = wkb_order2(phi,x,h);
-    
-    % compute error estimator
-    err_est = norm(wkb2 - wkb1,Inf)/norm(wkb2,Inf);
-    
-end
-
-% wkb-method order 1 (in h), iteration x -> x+h
-function phi_wkb1 = wkb_order1(phi,x,h)
         
-    % a and its first 3 derivatives evaluated at x and x+h
-    af = [a(x), a(x+h)];
-    aP = [da(x), da(x+h)];
-    a2P = [dda(x), dda(x+h)];
-    a3P = [ddda(x), ddda(x+h)];
-    
-    % b_0 and b_1 evaluated at x and x+h
-    b_0 = b_zero(af,aP,a2P);
-    b_1 = b_one(af,aP,a2P,a3P);
-    
-    % Short notation for the term a(x)^(1/4)
-    a014 = af(1)^(1/4);
-    
-    % Vector notation in variable U corresponding to Eq. (2.8)
-    U = [a014*phi(1) ; epsi*(aP(1)*phi(1)/(4*a014^5) + phi(2)/a014)];
-    
-    % The matrix exponential from Eq. (2.10) ...
-    EXP_1 = diag([exp(-(1i/epsi).*phi_eps_vec(1)) exp((1i/epsi).*phi_eps_vec(1))]);
-    
-    % ... and its inverse
-    EXP_2 = diag([exp((1i/epsi).*phi_eps_vec(2)), exp(-(1i/epsi).*phi_eps_vec(2))]);
-    
-    % Transformation from U to Z corresponding to Eq. (2.10)
-    Z = EXP_1*P*U;
-    
-    % Building matrix A^1_n
-    A = zeros(2,2);
-    
-    % Only offdiagonal entries:
-    A(1,2) = 1i*epsi^2* (...
-        b_0(2) * exp(-(2*1i/epsi)*phi_eps_vec(2)) - b_0(1) * exp(-(2*1i/epsi)*phi_eps_vec(1))...
-        )...
-        + epsi^3 * b_1(2) * (...
-        exp(-(2*1i/epsi)*phi_eps_vec(1))*h_one(-(2/epsi)*(phi_eps_vec(2)-phi_eps_vec(1)))...
-        );
-    
-    A(2,1) = -1i*epsi^2* (...
-        b_0(2) * exp((2*1i/epsi)*phi_eps_vec(2)) - b_0(1) * exp((2*1i/epsi)*phi_eps_vec(1))...
-        )...
-        + epsi^3 * b_1(2) * (...
-        exp((2*1i/epsi)*phi_eps_vec(1))*h_one((2/epsi)*(phi_eps_vec(2)-phi_eps_vec(1)))...
-        );
-    
-    % Scheme iteration via Eq. (2.13) and back transformation to U
-    U = P_inv*EXP_2*(eye(2,2) + A)*Z;
-    
-    % Initialize solution vector
-    phi_wkb1 = zeros(2,1);
-    
-    % Back transformation from U to phi via Eq. (2.8)
-    phi_wkb1(1) = U(1).*af(2).^(-1/4);
-    phi_wkb1(2) = U(2).*(af(2).^(1/4))/epsi - aP(2).*phi_wkb1(1)./(4*af(2));
-         
-end
-
-% wkb-method oder 2 (in h), iteration x -> x+h
-function phi_wkb2 = wkb_order2(phi,x,h)
-    
     % a and its first 5 derivatives evaluated at x and x+h
     af = [a(x), a(x+h)];
     aP = [da(x), da(x+h)];
@@ -377,11 +325,15 @@ function phi_wkb2 = wkb_order2(phi,x,h)
     % Vector notation in variable U corresponding to Eq. (2.8)
     U = [a014*phi(1) ; epsi*(aP(1)*phi(1)/(4*a014^5) + phi(2)/a014)];
     
+    % Often used values in matrices
+    i_eps_phi_eps1 = exp((1i/epsi).*phi_eps_vec(1));
+    i_eps_phi_eps2 = exp((1i/epsi).*phi_eps_vec(2));
+    
     % The matrix exponential from Eq. (2.10) ...
-    EXP_1 = diag([exp(-(1i/epsi).*phi_eps_vec(1)) exp((1i/epsi).*phi_eps_vec(1))]);
+    EXP_1 = diag([conj(i_eps_phi_eps1) i_eps_phi_eps1]);
     
     % ... and its inverse
-    EXP_2 = diag([exp((1i/epsi).*phi_eps_vec(2)), exp(-(1i/epsi).*phi_eps_vec(2))]);
+    EXP_2 = diag([i_eps_phi_eps2, conj(i_eps_phi_eps2)]);
     
     % Transformation from U to Z corresponding to Eq. (2.10)
     Z = EXP_1*P*U;
@@ -389,50 +341,71 @@ function phi_wkb2 = wkb_order2(phi,x,h)
     % Short notation for the phase difference
     s_n = phi_eps_vec(2) - phi_eps_vec(1);
     
-    % Building matrix A^1_mod,n
-    A1mod = zeros(2,2);
+    % Building matrix A^1_n
+    A_1 = zeros(2,2);
     
-    % Only offdiagonal entries: 
-    A1mod(1,2) = -1i*epsi^2*(...
-        b_0(1)*exp(-(2*1i/epsi)*phi_eps_vec(1)) - b_0(2)*exp(-(2*1i/epsi)*phi_eps_vec(2))...
-        )...
-        + epsi^3*(...
-        b_1(2)*exp(-(2*1i/epsi)*phi_eps_vec(2)) - b_1(1)*exp(-(2*1i/epsi)*phi_eps_vec(1))...
-        )...
-        + 1i*epsi^4*b_2(2)*(...
-        -exp(-(2*1i/epsi)*phi_eps_vec(1))*h_one(-(2/epsi)*s_n)...
-        )...
-        - epsi^5*b_3(2)*(...
-        exp(-(2*1i/epsi)*phi_eps_vec(1))*h_two(-(2/epsi)*s_n)...
-        );
+    % Often used values in matrices
+    i2_eps_phi_eps1 = i_eps_phi_eps1^-2;
+    i2_eps_phi_eps2 = i_eps_phi_eps2^-2;
+    h_1_minus_sn = exp(1i*(-(2/epsi)*s_n)) - 1;
+    h_2_minus_sn = h_1_minus_sn - 1i.*(-(2/epsi)*s_n);
     
-    A1mod(2,1) = -1i*epsi^2*(...
-        b_0(2)*exp((2*1i/epsi)*phi_eps_vec(2)) - b_0(1)*exp((2*1i/epsi)*phi_eps_vec(1))...
-        )...
-        + epsi^3*(...
-        b_1(2)*exp((2*1i/epsi)*phi_eps_vec(2)) - b_1(1)*exp((2*1i/epsi)*phi_eps_vec(1))...
-        )...
-        + 1i*epsi^4*b_2(2)*(...
-        exp((2*1i/epsi)*phi_eps_vec(1))*h_one((2/epsi)*s_n)...
-        )...
-        - epsi^5*b_3(2)*(...
-        exp((2*1i/epsi)*phi_eps_vec(1))*h_two((2/epsi)*s_n)...
-        );
-    
-    % Building matrix A^2_n
-    A2 = - (1i*epsi^3*h/2)*(b_Only(2)*b_0(2) + b_Only(1)*b_0(1))*[ 1 0 ; 0 -1 ] ...
-        - epsi^4*b_0(1)*b_0(2) * [ h_one(-(2/epsi)*s_n) 0 ; 0 h_one((2/epsi)*s_n) ] ...
-        + 1i*epsi^5*b_1(2)*(b_0(1) - b_0(2))*[ h_two(-(2/epsi)*s_n) 0 ; 0 -h_two((2/epsi)*s_n) ];
+    % Only offdiagonal entries:
+    A_1(1,2) = 1i*epsi^2* (...
+       b_0(2) * i2_eps_phi_eps2 - b_0(1) * i2_eps_phi_eps1...
+       )...
+       + epsi^3 * b_1(2) * (...
+       i2_eps_phi_eps1*h_1_minus_sn...
+       );
+
+    A_1(2,1) = conj(A_1(1,2)); % abusing hermite property
     
     % Scheme iteration via Eq. (2.13) and back transformation to U
-    U = P_inv*EXP_2*(eye(2,2) + A1mod + A2)*Z;
-    
+    U = P_inv*EXP_2*(eye(2,2) + A_1)*Z;
+        
     % Initialize solution vector
-    phi_wkb2 = zeros(2,1);
+    wkb1 = zeros(2,1);
     
     % Back transformation from U to phi via Eq. (2.8)
-    phi_wkb2(1) = U(1).*af(2).^(-1/4);
-    phi_wkb2(2) = U(2).*(af(2).^(1/4))/epsi - aP(2).*phi_wkb2(1)./(4*af(2));
+    wkb1(1) = U(1).*af(2).^(-1/4);
+    wkb1(2) = U(2).*(af(2).^(1/4))/epsi - aP(2).*wkb1(1)./(4*af(2)); 
+     
+    % Building matrix A^1_mod,n
+    A_1mod = zeros(2,2);
+    
+    % Only offdiagonal entries:
+     A_1mod(1,2) = -1i*epsi^2*(...
+        b_0(1)*i2_eps_phi_eps1 - b_0(2)*i2_eps_phi_eps2...
+        )...
+        + epsi^3*(...
+        b_1(2)*i2_eps_phi_eps2 - b_1(1)*i2_eps_phi_eps1...
+        )...
+        + 1i*epsi^4*b_2(2)*(...
+        -i2_eps_phi_eps1*h_1_minus_sn...
+        )...
+        - epsi^5*b_3(2)*(...
+        i2_eps_phi_eps1*h_2_minus_sn...
+        );
+
+      A_1mod(2,1) = conj(A_1mod(1,2)); % abusing hermite property
+    
+    % Building matrix A^2_n
+     A_2 = - (1i*epsi^3*h/2)*(b_Only(2)*b_0(2) + b_Only(1)*b_0(1))*[ 1 0 ; 0 -1 ] ...
+         - epsi^4*b_0(1)*b_0(2) * [ h_1_minus_sn 0 ; 0 conj(h_1_minus_sn) ] ...
+         + 1i*epsi^5*b_1(2)*(b_0(1) - b_0(2))*[ h_2_minus_sn 0 ; 0 -conj(h_2_minus_sn) ];
+    
+    % Scheme iteration via Eq. (2.13) and back transformation to U
+    U = P_inv*EXP_2*(eye(2,2) + A_1mod + A_2)*Z;
+    
+    % Initialize solution vector
+    wkb2 = zeros(2,1);
+    
+    % Back transformation from U to phi via Eq. (2.8)
+    wkb2(1) = U(1).*af(2).^(-1/4);
+    wkb2(2) = U(2).*(af(2).^(1/4))/epsi - aP(2).*wkb2(1)./(4*af(2));
+    
+    % compute error estimator
+    err_est = norm(wkb2 - wkb1,Inf);
     
 end
 
@@ -493,20 +466,6 @@ function b_three = b_three(af,aP,a2P,a3P,a4P,a5P)
         + 468.*epsi^2.*aP.*a2P.^3 + 3480.*epsi^2.*aP.^2.*a2P.*a3P + 100.*epsi^2.*aP.^3.*a4P ...
         + epsi^4.*(15.*a3P.^3 - 10.*a2P.*a3P.*a4P + a2P.^2.*a5P)))./((32.*af.^3 + 5.*epsi^2.*aP.^2 ...
         - 4.*epsi^2.*af.*a2P).^7);
-    
-end
-    
-% Function h_1(x) 
-function [h_one] = h_one(y)
-    
-    h_one = exp(1i.*y) - 1;
-    
-end
-
-% Function h_2(x)
-function [h_two] = h_two(y)
-    
-    h_two = exp(1i.*y) - 1 - 1i.*y;
     
 end
 
